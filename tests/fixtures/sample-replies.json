@@ -1,0 +1,62 @@
+[
+  { 
+    "subject": "Re: Quick question about Smith Realty", 
+    "body": "Yes, I'd love to see a demo. Can we schedule a call this week?", 
+    "expectedClassification": "HOT", 
+    "expectedSentiment": "POSITIVE" 
+  },
+  { 
+    "subject": "Re: Inquiry response for your agency", 
+    "body": "Interesting, tell me more about how this works with our current CRM", 
+    "expectedClassification": "WARM", 
+    "expectedSentiment": "POSITIVE" 
+  },
+  { 
+    "subject": "Re: Automation for properties", 
+    "body": "What is the pricing for this?", 
+    "expectedClassification": "CURIOUS", 
+    "expectedSentiment": "NEUTRAL" 
+  },
+  { 
+    "subject": "Re: Website conversion", 
+    "body": "We already have something in place for this, thanks.", 
+    "expectedClassification": "OBJECTION", 
+    "expectedSentiment": "NEGATIVE" 
+  },
+  { 
+    "subject": "Re: Quick question", 
+    "body": "Not interested at this time.", 
+    "expectedClassification": "NOT_INTERESTED", 
+    "expectedSentiment": "NEGATIVE" 
+  },
+  { 
+    "subject": "Re: Tenant response system", 
+    "body": "Please remove me from your mailing list immediately.", 
+    "expectedClassification": "UNSUBSCRIBE", 
+    "expectedSentiment": "NEGATIVE" 
+  },
+  { 
+    "subject": "Automatic reply: Out of Office", 
+    "body": "I am out of the office until Monday. Please contact my colleague if urgent.", 
+    "expectedClassification": "OUT_OF_OFFICE", 
+    "expectedSentiment": "NEUTRAL" 
+  },
+  { 
+    "subject": "Re: Intro", 
+    "body": "You have the wrong person, I don't handle software purchases.", 
+    "expectedClassification": "WRONG_PERSON", 
+    "expectedSentiment": "NEUTRAL" 
+  },
+  { 
+    "subject": "Re: Increase your sales", 
+    "body": "Stop spamming me! I am reporting you.", 
+    "expectedClassification": "SPAM", 
+    "expectedSentiment": "NEGATIVE" 
+  },
+  { 
+    "subject": "Re: Hello", 
+    "body": "Received.", 
+    "expectedClassification": "NEUTRAL", 
+    "expectedSentiment": "NEUTRAL" 
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "name": "Campaign A",
+    "targetCountry": "US",
+    "targetSegment": "US Independent RE Agents",
+    "offer": "AI tool to automate lead follow-ups",
+    "sequenceSteps": 3,
+    "angles": ["Save time on emails", "Increase conversion rates"]
+  },
+  {
+    "name": "Campaign B",
+    "targetCountry": "UK",
+    "targetSegment": "UK Estate Agencies - Viewing Automation",
+    "offer": "Automated viewing scheduling and reminders",
+    "sequenceSteps": 4,
+    "angles": ["Reduce no-shows", "Streamline booking process"]
+  },
+  {
+    "name": "Campaign C",
+    "targetCountry": "UK",
+    "targetSegment": "UK Letting Agencies - Tenant Response",
+    "offer": "24/7 AI tenant inquiry responses",
+    "sequenceSteps": 3,
+    "angles": ["Instant replies to tenants", "Free up property managers"]
+  },
+  {
+    "name": "Campaign D",
+    "targetCountry": "GLOBAL",
+    "targetSegment": "Property Businesses - Website Conversion",
+    "offer": "AI chatbot to convert website visitors to leads",
+    "sequenceSteps": 5,
+    "angles": ["Capture leads 24/7", "Qualify leads automatically"]
+  }
+]

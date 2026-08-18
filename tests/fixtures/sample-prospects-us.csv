@@ -1,0 +1,21 @@
+company_name,contact_first_name,contact_last_name,job_title,business_email,website,country,city,state,source_url,phone,specialty,notes
+Smith Realty Group,John,Smith,Owner/Broker,john@smithrealtygroup.com,https://smithrealtygroup.com,US,Los Angeles,CA,https://smithrealtygroup.com/about,,Residential Sales,Independent agent with 8 listings
+Acme Properties,Jane,Doe,Realtor,jane@acmeprop,https://acmeprop.com,US,New York,NY,,,Commercial,Invalid email missing domain extension
+Luxury Homes LLC,Mike,Johnson,Agent,mike@luxuryhomes.com,https://luxuryhomes.com,US,Miami,FL,,,Luxury,High end market
+Luxury Homes LLC,Sarah,Connor,Agent,sarah@luxuryhomes.com,https://luxuryhomes.com,US,Miami,FL,,,Luxury,Duplicate domain check
+Elite Estates,Bob,Builder,Manager,bobeliteestates.com,https://eliteestates.com,US,Chicago,IL,,,Property Management,Missing @ symbol
+Urban Living,Alice,Wonder,Realtor,alice@urbanliving.com,https://urbanliving.com,US,Austin,TX,,,Residential Sales,
+Sunny Real Estate,Tom,Sun,Broker,tom@sunnyre.com,https://sunnyre.com,US,Phoenix,AZ,,,Commercial,
+Mountain View Realty,Gary,Peak,Agent,gary@mvr.com,https://mvr.com,US,Denver,CO,,,Residential Sales,
+Coastline Properties,Sandy,Beach,Agent,sandy@coastline.com,https://coastline.com,US,San Diego,CA,,,Luxury,
+City Central Realty,Mark,Town,Broker,mark@citycentral.com,https://citycentral.com,US,Chicago,IL,,,Commercial,
+Midwest Homes,Karen,Oaks,Agent,karen@midwesthomes.com,https://midwesthomes.com,US,Columbus,OH,,,Residential Sales,
+Southern Charm Realty,Dixie,Normous,Agent,dixie@southerncharm,https://southerncharm.com,US,Atlanta,GA,,,Residential Sales,Invalid email domain
+Northern Lights Prop,Nick,Snow,Broker,nick@nlp.com,https://nlp.com,US,Seattle,WA,,,Property Management,
+Desert Oasis Realty,Oasis,Smith,Agent,oasis@desertrealty.com,https://desertrealty.com,US,Las Vegas,NV,,,Residential Sales,
+Big Apple Estates,Tony,Stark,Broker,tony@bigapple.com,https://bigapple.com,US,New York,NY,,,Luxury,
+Windy City Homes,Gail,Storm,Agent,gail@windycity.com,https://windycity.com,US,Chicago,IL,,,Residential Sales,
+Lone Star Properties,Tex,Ranger,Broker,tex@lonestar.com,https://lonestar.com,US,Dallas,TX,,,Commercial,
+Golden Gate Realty,Fran,Cisco,Agent,fran@goldengate.com,https://goldengate.com,US,San Francisco,CA,,,Luxury,
+Evergreen Estates,Eve,Green,Broker,eve@evergreen.com,https://evergreen.com,US,Portland,OR,,,Property Management,
+Bay Area Homes,Ray,Bay,Agent,ray@bayareahomes.com,https://bayareahomes.com,US,San Jose,CA,,,Residential Sales,

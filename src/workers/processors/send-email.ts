@@ -1,0 +1,93 @@
+import { Job } from 'bullmq';
+import { prisma } from '@/lib/db';
+import { checkDailyLimit, checkDomainLimit } from '@/lib/scheduling/send-window';
+import { getProspectTimezone, isWithinSendingWindow } from '@/lib/scheduling/timezone-utils';
+
+export default async function sendEmailProcessor(job: Job) {
+  const { emailMessageId, idempotencyKey } = job.data;
+
+  // Simple idempotency check via DB
+  const existing = await prisma.emailMessage.findUnique({
+    where: { id: emailMessageId }
+  });
+
+  if (!existing || existing.deliveryStatus !== 'PENDING') {
+    return { status: 'skipped', reason: 'Already sent or not pending' };
+  }
+
+  const emailMessage = await prisma.emailMessage.findUnique({
+    where: { id: emailMessageId },
+    include: {
+      prospect: true,
+      campaign: true,
+      workspace: true
+    }
+  });
+
+  if (!emailMessage) throw new Error('Email message not found');
+
+  const { prospect, workspace, campaign } = emailMessage;
+  
+  // Suppression check
+  const suppressed = await prisma.suppressionList.findFirst({
+    where: { workspaceId: workspace.id, email: prospect.email }
+  });
+
+  if (suppressed) {
+    await prisma.emailMessage.update({
+      where: { id: emailMessageId },
+      data: { deliveryStatus: 'FAILED' }
+    });
+    return { status: 'failed', reason: 'Suppressed' };
+  }
+
+  // Limits
+  const now = new Date();
+  if (!await checkDailyLimit(workspace.id, campaign.id, now)) {
+    throw new Error('Daily limit reached');
+  }
+
+  const domain = prospect.email.split('@')[1];
+  if (!await checkDomainLimit(workspace.id, domain, campaign.id, now)) {
+    throw new Error('Domain limit reached');
+  }
+
+  // Send
+  try {
+    // const providerMessageId = await emailProvider.send(...)
+    const providerMessageId = `mock-id-${Date.now()}`;
+
+    await prisma.emailMessage.update({
+      where: { id: emailMessageId },
+      data: {
+        providerMessageId,
+        sentAt: now,
+        deliveryStatus: 'SENT'
+      }
+    });
+
+    await prisma.campaignProspect.update({
+      where: { campaignId_prospectId: { campaignId: campaign.id, prospectId: prospect.id } },
+      data: { lastSentAt: now }
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        workspaceId: workspace.id,
+        action: 'EMAIL_SENT',
+        entityType: 'EmailMessage',
+        entityId: emailMessageId,
+        details: { providerMessageId }
+      }
+    });
+
+    return { status: 'sent', providerMessageId };
+
+  } catch (error: any) {
+    await prisma.emailMessage.update({
+      where: { id: emailMessageId },
+      data: { deliveryStatus: 'FAILED' }
+    });
+    throw error;
+  }
+}

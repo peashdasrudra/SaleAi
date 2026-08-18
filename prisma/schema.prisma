@@ -1,0 +1,605 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// -----------------------------------------------------------------------------
+// Enums
+// -----------------------------------------------------------------------------
+
+enum EmailStatus {
+  UNKNOWN
+  VALIDATED
+  INVALID
+  BOUNCED
+  UNSUBSCRIBED
+  COMPLAINED
+}
+
+enum Country {
+  US
+  UK
+  OTHER
+}
+
+enum SourceType {
+  MANUAL
+  CSV
+  OFFICIAL_API
+  OFFICIAL_DIRECTORY
+  USER_RESEARCH
+}
+
+enum ResearchStatus {
+  NEW
+  QUEUED
+  IN_PROGRESS
+  REVIEW_REQUIRED
+  COMPLETE
+  FAILED
+}
+
+enum ContactStatus {
+  NOT_CONTACTED
+  APPROVED
+  QUEUED
+  SENT
+  REPLIED
+  QUALIFIED
+  NOT_INTERESTED
+  UNSUBSCRIBED
+  BOUNCED
+  CONVERTED
+}
+
+enum Priority {
+  A
+  B
+  C
+  DISQUALIFIED
+}
+
+enum EvidenceType {
+  WEBSITE_FORM
+  NO_INSTANT_ACKNOWLEDGMENT
+  NO_BOOKING_LINK
+  MISSED_CALL_GAP
+  ACTIVE_LISTING
+  RECENT_MARKETING
+  RECENT_REVIEW
+  SMALL_TEAM
+  HIGH_VALUE_PROPERTY
+  OTHER
+}
+
+enum CampaignStatus {
+  DRAFT
+  REVIEW
+  APPROVED
+  RUNNING
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum SequenceStatus {
+  NOT_STARTED
+  WAITING_APPROVAL
+  ACTIVE
+  PAUSED
+  COMPLETED
+  STOPPED
+}
+
+enum TemplateType {
+  INITIAL
+  FOLLOW_UP_1
+  FOLLOW_UP_2
+  BREAKUP
+  REPLY
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EDITED
+}
+
+enum DeliveryStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  OPENED
+  CLICKED
+  BOUNCED
+  COMPLAINED
+  FAILED
+}
+
+enum ReplyStatus {
+  NO_REPLY
+  REPLIED
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+  UNSUBSCRIBE
+}
+
+enum Classification {
+  HOT
+  WARM
+  CURIOUS
+  NEUTRAL
+  OBJECTION
+  NOT_INTERESTED
+  UNSUBSCRIBE
+  OUT_OF_OFFICE
+  SPAM
+  UNKNOWN
+}
+
+enum Sentiment {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+enum NotificationType {
+  REPLY
+  HOT_LEAD
+  UNSUBSCRIBE
+  BOUNCE
+  CAMPAIGN_ERROR
+  DAILY_REPORT
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  TELEGRAM
+  SLACK
+}
+
+enum SuppressionReason {
+  UNSUBSCRIBE
+  HARD_BOUNCE
+  COMPLAINT
+  MANUAL
+  DUPLICATE
+}
+
+enum TaskStatus {
+  OPEN
+  DONE
+  SNOOZED
+}
+
+// -----------------------------------------------------------------------------
+// Models
+// -----------------------------------------------------------------------------
+
+model User {
+  id                String      @id @default(cuid())
+  name              String?
+  email             String?     @unique
+  passwordHash      String?
+  timezone          String?
+  notificationEmail String?
+  telegramChatId    String?
+  slackWebhook      String?
+  image             String?
+  emailVerified     DateTime?   @map("email_verified")
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
+
+  accounts          Account[]
+  sessions          Session[]
+  workspaces        Workspace[] @relation("UserWorkspaces")
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Workspace {
+  id               String   @id @default(cuid())
+  name             String
+  ownerId          String   @map("owner_id")
+  companyName      String?  @map("company_name")
+  companyWebsite   String?  @map("company_website")
+  companyEmail     String?  @map("company_email")
+  businessAddress  String?  @db.Text @map("business_address")
+  defaultSignature String?  @db.Text @map("default_signature")
+  defaultTimezone  String   @default("America/New_York") @map("default_timezone")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  owner            User              @relation("UserWorkspaces", fields: [ownerId], references: [id], onDelete: Cascade)
+  prospects        Prospect[]
+  campaigns        Campaign[]
+  emailTemplates   EmailTemplate[]
+  notifications    Notification[]
+  suppressions     Suppression[]
+  tasks            Task[]
+  auditLogs        AuditLog[]
+
+  @@map("workspaces")
+}
+
+model Prospect {
+  id                      String         @id @default(cuid())
+  workspaceId             String         @map("workspace_id")
+  companyName             String         @map("company_name")
+  contactFirstName        String?        @map("contact_first_name")
+  contactLastName         String?        @map("contact_last_name")
+  contactFullName         String?        @map("contact_full_name")
+  jobTitle                String?        @map("job_title")
+  businessEmail           String?        @map("business_email")
+  emailStatus             EmailStatus?   @map("email_status")
+  publicBusinessPhone     String?        @map("public_business_phone")
+  country                 Country?
+  stateOrCounty           String?        @map("state_or_county")
+  city                    String?
+  postcode                String?
+  website                 String?
+  sourceType              SourceType?    @map("source_type")
+  sourceUrl               String?        @map("source_url")
+  sourceRecordedAt        DateTime?      @map("source_recorded_at")
+  dataProvenanceNote      String?        @db.Text @map("data_provenance_note")
+  businessType            String?        @map("business_type")
+  specialty               String?
+  teamSize                String?        @map("team_size")
+  serviceArea             String?        @map("service_area")
+  activeListingCount      String?        @map("active_listing_count")
+  activeListingUrl        String?        @map("active_listing_url")
+  activeListingPrice      String?        @map("active_listing_price")
+  latestActivityDate      String?        @map("latest_activity_date")
+  latestReviewDate        String?        @map("latest_review_date")
+  estimatedBudgetBand     String?        @map("estimated_budget_band")
+  decisionMakerConfidence Int            @default(0) @map("decision_maker_confidence")
+  researchStatus          ResearchStatus? @map("research_status")
+  contactStatus           ContactStatus?  @map("contact_status")
+  priority                Priority?
+  totalScore              Int            @default(0) @map("total_score")
+  aiSummary               String?        @db.Text @map("ai_summary")
+  personalizationNotes    String?        @db.Text @map("personalization_notes")
+  doNotContact            Boolean        @default(false) @map("do_not_contact")
+  createdAt               DateTime       @default(now()) @map("created_at")
+  updatedAt               DateTime       @updatedAt @map("updated_at")
+
+  workspace               Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  evidences               ProspectEvidence[]
+  audits                  Audit[]
+  scoreBreakdowns         ScoreBreakdown[]
+  campaignProspects       CampaignProspect[]
+  generatedEmails         GeneratedEmail[]
+  emailMessages           EmailMessage[]
+  replies                 Reply[]
+  tasks                   Task[]
+  notifications           Notification[]
+
+  @@index([workspaceId, contactStatus])
+  @@index([workspaceId, priority])
+  @@index([workspaceId, totalScore])
+  @@index([workspaceId, businessEmail])
+  @@index([workspaceId, researchStatus])
+  @@map("prospects")
+}
+
+model ProspectEvidence {
+  id             String       @id @default(cuid())
+  prospectId     String       @map("prospect_id")
+  evidenceType   EvidenceType @map("evidence_type")
+  evidenceText   String       @db.Text @map("evidence_text")
+  evidenceUrl    String?      @map("evidence_url")
+  observedAt     DateTime     @map("observed_at")
+  verifiedByUser Boolean      @default(false) @map("verified_by_user")
+  confidence     Int          @default(50)
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  prospect Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@index([prospectId])
+  @@map("prospect_evidence")
+}
+
+model Audit {
+  id                         String    @id @default(cuid())
+  prospectId                 String    @map("prospect_id")
+  auditType                  String    @map("audit_type")
+  permissionOrBasisNote      String?   @db.Text @map("permission_or_basis_note")
+  startedAt                  DateTime  @map("started_at")
+  completedAt                DateTime? @map("completed_at")
+  resultStatus               String?   @map("result_status")
+  observedResponseTime       String?   @map("observed_response_time")
+  instantAcknowledgment      String?   @map("instant_acknowledgment")
+  bookingLinkPresent         String?   @map("booking_link_present")
+  missedCallReplyPresent     String?   @map("missed_call_reply_present")
+  afterHoursInformationPresent String? @map("after_hours_information_present")
+  notes                      String?   @db.Text
+  evidenceUrl                String?   @map("evidence_url")
+  createdBy                  String?   @map("created_by")
+
+  prospect Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@index([prospectId])
+  @@map("audits")
+}
+
+model ScoreBreakdown {
+  id          String   @id @default(cuid())
+  prospectId  String   @map("prospect_id")
+  factor      String
+  points      Int
+  explanation String   @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  prospect Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@index([prospectId])
+  @@map("score_breakdowns")
+}
+
+model Campaign {
+  id                  String         @id @default(cuid())
+  workspaceId         String         @map("workspace_id")
+  name                String
+  targetCountry       String?        @map("target_country")
+  targetSegment       String?        @map("target_segment")
+  offer               String?        @db.Text
+  status              CampaignStatus?
+  dailyLimit          Int            @default(20) @map("daily_limit")
+  maxPerDomainPerDay  Int            @default(2) @map("max_per_domain_per_day")
+  sendingWindowStart  String         @default("09:00") @map("sending_window_start")
+  sendingWindowEnd    String         @default("17:00") @map("sending_window_end")
+  sendingDays         String         @default("MON,TUE,WED,THU,FRI") @map("sending_days")
+  timezoneMode        String         @default("prospect") @map("timezone_mode")
+  approvalRequired    Boolean        @default(true) @map("approval_required")
+  createdAt           DateTime       @default(now()) @map("created_at")
+  updatedAt           DateTime       @updatedAt @map("updated_at")
+
+  workspace           Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  campaignProspects   CampaignProspect[]
+  generatedEmails     GeneratedEmail[]
+  emailMessages       EmailMessage[]
+  replies             Reply[]
+
+  @@index([workspaceId, status])
+  @@map("campaigns")
+}
+
+model CampaignProspect {
+  id             String         @id @default(cuid())
+  campaignId     String         @map("campaign_id")
+  prospectId     String         @map("prospect_id")
+  sequenceStatus SequenceStatus? @map("sequence_status")
+  currentStep    Int            @default(0) @map("current_step")
+  nextSendAt     DateTime?      @map("next_send_at")
+  lastSentAt     DateTime?      @map("last_sent_at")
+  pausedReason   String?        @db.Text @map("paused_reason")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  prospect Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, prospectId])
+  @@index([campaignId, sequenceStatus])
+  @@index([prospectId])
+  @@map("campaign_prospects")
+}
+
+model EmailTemplate {
+  id             String       @id @default(cuid())
+  workspaceId    String       @map("workspace_id")
+  name           String
+  templateType   TemplateType? @map("template_type")
+  subjectTemplate String       @db.Text @map("subject_template")
+  bodyTemplate   String       @db.Text @map("body_template")
+  version        Int          @default(1)
+  approvalStatus String       @default("DRAFT") @map("approval_status")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@map("email_templates")
+}
+
+model GeneratedEmail {
+  id                  String         @id @default(cuid())
+  prospectId          String         @map("prospect_id")
+  campaignId          String         @map("campaign_id")
+  templateId          String?        @map("template_id")
+  subject             String         @db.Text
+  bodyHtml            String         @db.Text @map("body_html")
+  bodyText            String         @db.Text @map("body_text")
+  personalizationFacts Json          @default("[]") @map("personalization_facts")
+  riskFlags           Json           @default("[]") @map("risk_flags")
+  aiModel             String?        @map("ai_model")
+  promptVersion       String         @default("v1") @map("prompt_version")
+  approvalStatus      ApprovalStatus? @map("approval_status")
+  approvedBy          String?        @map("approved_by")
+  approvedAt          DateTime?      @map("approved_at")
+  createdAt           DateTime       @default(now()) @map("created_at")
+
+  prospect      Prospect       @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  campaign      Campaign       @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  emailMessages EmailMessage[]
+
+  @@index([prospectId])
+  @@index([campaignId])
+  @@index([approvalStatus])
+  @@map("generated_emails")
+}
+
+model EmailMessage {
+  id                String         @id @default(cuid())
+  prospectId        String         @map("prospect_id")
+  campaignId        String         @map("campaign_id")
+  generatedEmailId  String         @map("generated_email_id")
+  providerMessageId String?        @map("provider_message_id")
+  threadId          String?        @map("thread_id")
+  stepNumber        Int            @map("step_number")
+  sentAt            DateTime?      @map("sent_at")
+  deliveryStatus    DeliveryStatus? @map("delivery_status")
+  replyStatus       ReplyStatus?    @map("reply_status")
+  errorMessage      String?        @db.Text @map("error_message")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  prospect       Prospect       @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  campaign       Campaign       @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  generatedEmail GeneratedEmail @relation(fields: [generatedEmailId], references: [id], onDelete: Cascade)
+
+  @@index([prospectId])
+  @@index([campaignId])
+  @@index([providerMessageId])
+  @@index([deliveryStatus])
+  @@map("email_messages")
+}
+
+model Reply {
+  id                String         @id @default(cuid())
+  prospectId        String         @map("prospect_id")
+  campaignId        String?        @map("campaign_id")
+  emailMessageId    String?        @map("email_message_id")
+  providerThreadId  String?        @map("provider_thread_id")
+  senderEmail       String         @map("sender_email")
+  subject           String?        @db.Text
+  bodyText          String?        @db.Text @map("body_text")
+  receivedAt        DateTime       @map("received_at")
+  classification    Classification?
+  sentiment         Sentiment?
+  leadScoreDelta    Int            @default(0) @map("lead_score_delta")
+  suggestedNextAction String?      @db.Text @map("suggested_next_action")
+  notificationSent  Boolean        @default(false) @map("notification_sent")
+  humanReviewed     Boolean        @default(false) @map("human_reviewed")
+  createdAt         DateTime       @default(now()) @map("created_at")
+
+  prospect Prospect  @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  campaign Campaign? @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([prospectId])
+  @@index([campaignId])
+  @@index([classification])
+  @@map("replies")
+}
+
+model Notification {
+  id          String              @id @default(cuid())
+  workspaceId String              @map("workspace_id")
+  prospectId  String?             @map("prospect_id")
+  replyId     String?             @map("reply_id")
+  type        NotificationType?
+  channel     NotificationChannel?
+  status      String              @default("PENDING")
+  message     String              @db.Text
+  sentAt      DateTime?           @map("sent_at")
+  createdAt   DateTime            @default(now()) @map("created_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  prospect  Prospect? @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, type])
+  @@map("notifications")
+}
+
+model Suppression {
+  id          String            @id @default(cuid())
+  workspaceId String            @map("workspace_id")
+  email       String?
+  domain      String?
+  phone       String?
+  reason      SuppressionReason?
+  source      String            @default("SYSTEM")
+  createdAt   DateTime          @default(now()) @map("created_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, email])
+  @@index([workspaceId, email])
+  @@index([workspaceId, domain])
+  @@map("suppressions")
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  workspaceId String     @map("workspace_id")
+  prospectId  String?    @map("prospect_id")
+  title       String
+  description String?    @db.Text
+  dueAt       DateTime?  @map("due_at")
+  priority    String     @default("MEDIUM")
+  status      TaskStatus?
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  prospect  Prospect? @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, status])
+  @@map("tasks")
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  workspaceId String   @map("workspace_id")
+  userId      String?  @map("user_id")
+  action      String
+  entityType  String   @map("entity_type")
+  entityId    String   @map("entity_id")
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, entityType, entityId])
+  @@index([workspaceId, createdAt])
+  @@map("audit_logs")
+}
