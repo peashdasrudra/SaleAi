@@ -14,12 +14,12 @@ import { addEvidence, updateEvidence, deleteEvidence } from '@/app/(dashboard)/r
 
 export interface EvidenceItem {
   id: string;
-  type: string;
-  text: string;
-  url?: string | null;
+  evidenceType: string;
+  evidenceText: string;
+  evidenceUrl?: string | null;
   observedAt: Date;
   confidence: number;
-  verified: boolean;
+  verifiedByUser: boolean;
 }
 
 interface EvidencePanelProps {
@@ -62,8 +62,8 @@ export function EvidencePanel({ prospectId, evidences }: EvidencePanelProps) {
         <Card key={item.id} className="overflow-hidden">
           <CardContent className="p-4">
             <div className="flex justify-between items-start mb-2">
-              <Badge variant="outline" className="bg-secondary/20">{item.type}</Badge>
-              {item.verified ? (
+              <Badge variant="outline" className="bg-secondary/20">{item.evidenceType}</Badge>
+              {item.verifiedByUser ? (
                 <Badge variant="outline" className="border-green-500 text-green-600 flex gap-1">
                   <CheckCircle2 className="h-3 w-3" /> Verified
                 </Badge>
@@ -73,9 +73,9 @@ export function EvidencePanel({ prospectId, evidences }: EvidencePanelProps) {
                 </Badge>
               )}
             </div>
-            <p className="text-sm mb-2">{item.text}</p>
-            {item.url && (
-              <a href={item.url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1 mb-3">
+            <p className="text-sm mb-2">{item.evidenceText}</p>
+            {item.evidenceUrl && (
+              <a href={item.evidenceUrl} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1 mb-3">
                 Source <ExternalLink className="h-3 w-3" />
               </a>
             )}

@@ -15,7 +15,7 @@ export async function getResearchQueue(filters?: { status?: string; country?: st
   const where: any = { workspaceId };
   
   if (filters?.status && filters.status !== 'all') {
-    where.researchStatus = filters.status;
+    where.researchStatus = filters.status as any;
   } else {
     where.researchStatus = { in: ['NEW', 'QUEUED', 'IN_PROGRESS', 'REVIEW_REQUIRED'] };
   }

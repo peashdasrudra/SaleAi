@@ -13,7 +13,7 @@ export async function getTasks(filters?: { status?: string; priority?: string })
   const workspaceId = await getWorkspaceId();
   
   const where: any = { workspaceId };
-  if (filters?.status) where.status = filters.status;
+  if (filters?.status) where.status = filters.status as any;
   if (filters?.priority) where.priority = filters.priority;
 
   const tasks = await prisma.task.findMany({
@@ -24,7 +24,7 @@ export async function getTasks(filters?: { status?: string; priority?: string })
       }
     },
     orderBy: [
-      { dueDate: 'asc' },
+      { dueAt: 'asc' },
       { createdAt: 'desc' }
     ],
     take: 50
@@ -53,7 +53,7 @@ export async function updateTask(id: string, data: { status?: string; priority?:
   
   const task = await prisma.task.update({
     where: { id, workspaceId },
-    data
+    data: data as any
   });
   
   revalidatePath('/tasks');
