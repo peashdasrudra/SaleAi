@@ -2,6 +2,9 @@ import { Job } from 'bullmq';
 import { prisma } from '@/lib/db';
 import { checkDailyLimit, checkDomainLimit } from '@/lib/scheduling/send-window';
 import { getProspectTimezone, isWithinSendingWindow } from '@/lib/scheduling/timezone-utils';
+import { createEmailProvider } from '@/lib/email/email-factory';
+
+const emailProvider = createEmailProvider();
 
 export default async function sendEmailProcessor(job: Job) {
   const { emailMessageId, idempotencyKey } = job.data;
@@ -54,8 +57,20 @@ export default async function sendEmailProcessor(job: Job) {
 
   // Send
   try {
-    // const providerMessageId = await emailProvider.send(...)
-    const providerMessageId = `mock-id-${Date.now()}`;
+    const result = await emailProvider.send({
+      from: workspace.companyEmail || process.env.RESEND_FROM_EMAIL || 'hello@example.com',
+      to: prospect.businessEmail!,
+      subject: emailMessage.subject,
+      html: emailMessage.bodyHtml,
+      text: emailMessage.bodyText,
+      replyTo: workspace.companyEmail || undefined
+    });
+
+    if (!result.success || !result.messageId) {
+      throw new Error(`Provider failed: ${result.error}`);
+    }
+
+    const providerMessageId = result.messageId;
 
     await prisma.emailMessage.update({
       where: { id: emailMessageId },

@@ -9,6 +9,7 @@ import classifyReplyProcessor from './processors/classify-reply';
 import notificationProcessor from './processors/create-notification';
 import campaignSchedulerProcessor from './processors/campaign-scheduler';
 import campaignPauseCheckProcessor from './processors/campaign-pause-check';
+import researchProcessor from './processors/research-prospect';
 
 const workers: Worker[] = [];
 
@@ -20,7 +21,7 @@ async function startWorkers() {
   workers.push(new Worker('email-generation', generateEmailProcessor, { connection, concurrency: 10 }));
   workers.push(new Worker('email-send', sendEmailProcessor, { connection, concurrency: 20 }));
   workers.push(new Worker('webhook', webhookProcessor, { connection, concurrency: 20 }));
-  workers.push(new Worker('research', classifyReplyProcessor, { connection, concurrency: 5 })); // Classify runs on research queue or its own
+  workers.push(new Worker('research', researchProcessor, { connection, concurrency: 5 }));
   workers.push(new Worker('notification', notificationProcessor, { connection, concurrency: 10 }));
   
   const schedulerWorker = new Worker('scheduler', async (job) => {

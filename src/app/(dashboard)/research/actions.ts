@@ -97,12 +97,16 @@ export async function updateResearchStatus(prospectId: string, status: string) {
 
 export async function triggerScoring(prospectId: string) {
   const workspaceId = await getWorkspaceId();
-  // Call scoring engine here
-  // Mock logic:
+  
+  // Update status to queued
   await prisma.prospect.update({
     where: { id: prospectId, workspaceId },
-    data: { totalScore: Math.floor(Math.random() * 100) }
+    data: { researchStatus: 'QUEUED' }
   });
+  
+  // Add to background research queue
+  const { researchQueue } = await import('@/workers/queues');
+  await researchQueue.add('research-prospect', { prospectId });
   
   revalidatePath('/research');
 }
