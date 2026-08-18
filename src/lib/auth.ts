@@ -8,6 +8,7 @@ import bcrypt from 'bcryptjs';
 
 declare module 'next-auth' {
   interface Session {
+    workspaceId?: string;
     user: {
       id: string;
       workspaceId?: string;
@@ -83,6 +84,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.workspaceId = token.workspaceId as string | undefined;
+        session.workspaceId = token.workspaceId as string | undefined;
       }
       return session;
     },

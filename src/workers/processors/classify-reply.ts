@@ -1,11 +1,12 @@
 import { Job } from 'bullmq';
 import { prisma } from '@/lib/db';
 import { notificationQueue } from '../queues';
+import { Classification, Sentiment } from '@prisma/client';
 
 // Mock classifier
 const classifier = {
   classify: async (text: string) => {
-    return { classification: 'HOT', sentiment: 'POSITIVE', confidence: 0.9 };
+    return { classification: 'HOT' as Classification, sentiment: 'POSITIVE' as Sentiment, confidence: 0.9 };
   }
 };
 
@@ -23,31 +24,31 @@ export default async function classifyReplyProcessor(job: Job) {
 
   if (!reply) throw new Error('Reply not found');
 
-  const { classification, sentiment, confidence } = await classifier.classify(reply.body);
+  const { classification, sentiment } = await classifier.classify(reply.bodyText || '');
 
   await prisma.reply.update({
     where: { id: replyId },
-    data: { classification, sentiment, confidence }
+    data: { classification, sentiment }
   });
 
   await prisma.prospect.update({
     where: { id: reply.prospectId },
     data: { 
-      status: 'REPLIED',
-      score: { increment: scores[classification] || 0 }
+      contactStatus: 'REPLIED',
+      totalScore: { increment: scores[classification] || 0 }
     }
   });
 
   await prisma.campaignProspect.updateMany({
     where: { prospectId: reply.prospectId },
-    data: { status: 'PAUSED' }
+    data: { sequenceStatus: 'PAUSED' }
   });
 
   if (['HOT', 'WARM'].includes(classification)) {
     await notificationQueue.add('hot-reply', {
-      workspaceId: reply.workspaceId,
-      type: 'HOT_REPLY',
-      message: `${classification} reply from ${reply.prospect.email}`,
+      workspaceId: reply.prospect.workspaceId,
+      type: 'HOT_LEAD',
+      message: `${classification} reply from ${reply.prospect.businessEmail}`,
       prospectId: reply.prospectId,
       replyId,
       channels: ['IN_APP', 'SLACK']
@@ -55,11 +56,11 @@ export default async function classifyReplyProcessor(job: Job) {
 
     await prisma.task.create({
       data: {
-        workspaceId: reply.workspaceId,
+        workspaceId: reply.prospect.workspaceId,
         prospectId: reply.prospectId,
-        title: `Reply personally within 15 minutes to ${reply.prospect.email}`,
+        title: `Reply personally within 15 minutes to ${reply.prospect.businessEmail}`,
         priority: 'HIGH',
-        dueDate: new Date(Date.now() + 15 * 60 * 1000)
+        dueAt: new Date(Date.now() + 15 * 60 * 1000)
       }
     });
   }

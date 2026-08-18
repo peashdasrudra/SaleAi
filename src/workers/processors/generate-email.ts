@@ -34,17 +34,18 @@ export default async function generateEmailProcessor(job: Job) {
       prospectId,
       campaignId,
       subject: result.subject,
-      body: result.body,
-      status: 'PENDING',
-      riskLevel: result.riskLevel
+      bodyHtml: result.body,
+      bodyText: result.body,
+      approvalStatus: 'PENDING',
+      riskFlags: [result.riskLevel]
     }
   });
 
   if (result.riskLevel === 'HIGH') {
     await notificationQueue.add('email-approval-needed', {
       workspaceId: prospect.workspaceId,
-      type: 'EMAIL_APPROVAL',
-      message: `High risk email generated for ${prospect.email}, requires approval`,
+      type: 'CAMPAIGN_ERROR',
+      message: `High risk email generated for ${prospect.businessEmail}, requires approval`,
       prospectId,
       channels: ['IN_APP', 'EMAIL']
     });

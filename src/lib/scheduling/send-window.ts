@@ -18,7 +18,7 @@ export async function checkDailyLimit(workspaceId: string, campaignId: string, d
   
   const sentToday = await prisma.emailMessage.count({
     where: {
-      workspaceId,
+      prospect: { workspaceId },
       campaignId,
       sentAt: { gte: startOfDay }
     }

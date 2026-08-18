@@ -10,14 +10,14 @@ export default async function campaignPauseCheckProcessor(job: Job) {
   let pausedCount = 0;
 
   for (const campaign of runningCampaigns) {
-    const stats = await prisma.campaignStats.findUnique({
-      where: { campaignId: campaign.id }
-    });
+    const sent = await prisma.emailMessage.count({ where: { campaignId: campaign.id, deliveryStatus: 'SENT' } });
+    if (sent === 0) continue;
 
-    if (!stats || stats.sent === 0) continue;
+    const bounced = await prisma.emailMessage.count({ where: { campaignId: campaign.id, deliveryStatus: 'BOUNCED' } });
+    const complained = await prisma.emailMessage.count({ where: { campaignId: campaign.id, deliveryStatus: 'COMPLAINED' } });
 
-    const bounceRate = stats.bounced / stats.sent;
-    const complaintRate = stats.complained / stats.sent;
+    const bounceRate = bounced / sent;
+    const complaintRate = complained / sent;
 
     if (bounceRate > 0.05 || complaintRate > 0.005) {
       await prisma.campaign.update({
@@ -27,7 +27,7 @@ export default async function campaignPauseCheckProcessor(job: Job) {
 
       await notificationQueue.add('campaign-paused', {
         workspaceId: campaign.workspaceId,
-        type: 'CAMPAIGN_PAUSED',
+        type: 'CAMPAIGN_ERROR',
         message: `Campaign ${campaign.name} automatically paused due to high bounce/complaint rate`,
         channels: ['IN_APP', 'EMAIL']
       });
@@ -38,7 +38,7 @@ export default async function campaignPauseCheckProcessor(job: Job) {
           action: 'CAMPAIGN_AUTO_PAUSED',
           entityType: 'Campaign',
           entityId: campaign.id,
-          details: { bounceRate, complaintRate }
+          metadata: { bounceRate, complaintRate }
         }
       });
       

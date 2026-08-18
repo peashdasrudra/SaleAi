@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const senderEmail = body.from_email;
+    const senderEmail = body.from_email || '';
     const inReplyTo = body.in_reply_to;
 
     const emailMessage = await prisma.emailMessage.findFirst({
@@ -20,10 +20,13 @@ export async function POST(req: Request) {
 
     const reply = await prisma.reply.create({
       data: {
-        workspaceId: emailMessage.workspaceId,
         prospectId: emailMessage.prospectId,
+        campaignId: emailMessage.campaignId,
         emailMessageId: emailMessage.id,
-        body: body.text_body || body.html_body,
+        senderEmail: senderEmail,
+        subject: body.subject,
+        bodyText: body.text_body || body.html_body,
+        receivedAt: new Date(),
         classification: 'UNKNOWN'
       }
     });
@@ -31,7 +34,7 @@ export async function POST(req: Request) {
     // Pause sequences
     await prisma.campaignProspect.updateMany({
       where: { prospectId: emailMessage.prospectId },
-      data: { status: 'PAUSED' }
+      data: { sequenceStatus: 'PAUSED' }
     });
 
     await researchQueue.add('classify-reply', {

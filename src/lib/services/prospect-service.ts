@@ -1,9 +1,8 @@
 import prisma from '@/lib/db';
-import { Prisma } from '@prisma/client';
+import { Prisma, Country, Priority, ContactStatus, ResearchStatus, EmailStatus, SourceType } from '@prisma/client';
 
 export interface CreateProspectInput {
   companyName: string;
-  companyDomain?: string;
   contactFullName?: string;
   contactFirstName?: string;
   contactLastName?: string;
@@ -16,10 +15,10 @@ export interface CreateProspectInput {
 }
 
 export interface UpdateProspectInput extends Partial<CreateProspectInput> {
-  researchStatus?: any;
-  contactStatus?: any;
-  priority?: any;
-  emailStatus?: any;
+  researchStatus?: string;
+  contactStatus?: string;
+  priority?: string;
+  emailStatus?: string;
   totalScore?: number;
 }
 
@@ -44,17 +43,19 @@ export async function createProspect(workspaceId: string, data: CreateProspectIn
   if (!workspaceId) throw new Error('Workspace ID is required');
 
   const normalizedEmail = data.businessEmail ? data.businessEmail.toLowerCase().trim() : undefined;
+  
+  const payload: any = {
+    ...data,
+    businessEmail: normalizedEmail,
+    workspaceId,
+    researchStatus: 'NEW',
+    contactStatus: 'NOT_CONTACTED',
+    priority: 'C',
+    emailStatus: 'UNKNOWN',
+  };
 
   return prisma.prospect.create({
-    data: {
-      ...data,
-      businessEmail: normalizedEmail,
-      workspaceId,
-      researchStatus: 'NEW',
-      contactStatus: 'NOT_CONTACTED',
-      priority: 'C',
-      emailStatus: 'UNKNOWN',
-    },
+    data: payload,
   });
 }
 
@@ -78,12 +79,12 @@ export async function getProspects(workspaceId: string, filters: ProspectFilterI
     ];
   }
 
-  if (filters.country?.length) where.country = { in: filters.country };
-  if (filters.priority?.length) where.priority = { in: filters.priority };
-  if (filters.contactStatus?.length) where.contactStatus = { in: filters.contactStatus };
-  if (filters.researchStatus?.length) where.researchStatus = { in: filters.researchStatus };
-  if (filters.emailStatus?.length) where.emailStatus = { in: filters.emailStatus };
-  if (filters.sourceType?.length) where.sourceType = { in: filters.sourceType };
+  if (filters.country?.length) where.country = { in: filters.country as Country[] };
+  if (filters.priority?.length) where.priority = { in: filters.priority as Priority[] };
+  if (filters.contactStatus?.length) where.contactStatus = { in: filters.contactStatus as ContactStatus[] };
+  if (filters.researchStatus?.length) where.researchStatus = { in: filters.researchStatus as ResearchStatus[] };
+  if (filters.emailStatus?.length) where.emailStatus = { in: filters.emailStatus as EmailStatus[] };
+  if (filters.sourceType?.length) where.sourceType = { in: filters.sourceType as SourceType[] };
 
   if (filters.scoreMin !== undefined || filters.scoreMax !== undefined) {
     where.totalScore = {};
@@ -167,7 +168,7 @@ export async function updateProspect(workspaceId: string, id: string, data: Upda
 
   return prisma.prospect.update({
     where: { id },
-    data,
+    data: data as any,
   });
 }
 
@@ -223,7 +224,7 @@ export async function bulkUpdateProspects(workspaceId: string, ids: string[], da
       workspaceId,
       id: { in: ids },
     },
-    data,
+    data: data as any,
   });
 
   return result;
@@ -239,7 +240,7 @@ export async function checkDuplicates(workspaceId: string, email?: string, domai
   }
 
   if (domain) {
-    OR.push({ companyDomain: domain.toLowerCase().trim() });
+    OR.push({ website: { contains: domain.toLowerCase().trim() } });
   }
 
   if (companyName) {

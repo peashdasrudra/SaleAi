@@ -1,5 +1,5 @@
 import prisma from '@/lib/db';
-import { Prisma } from '@prisma/client';
+import { Prisma, SuppressionReason } from '@prisma/client';
 
 export interface AddSuppressionInput {
   email?: string;
@@ -23,10 +23,6 @@ export async function addSuppression(workspaceId: string, data: AddSuppressionIn
     }
   }
 
-  // Use a unique constraint or multiple fields to upsert
-  // Assuming the schema has a unique constraint on (workspaceId, email) and (workspaceId, domain)
-  // To handle the complexity safely without exact schema, we check and create/update
-  
   const existing = await prisma.suppression.findFirst({
     where: {
       workspaceId,
@@ -37,13 +33,15 @@ export async function addSuppression(workspaceId: string, data: AddSuppressionIn
     }
   });
 
+  const reason = (data.reason as SuppressionReason) || 'MANUAL';
+
   if (existing) {
     return prisma.suppression.update({
       where: { id: existing.id },
       data: {
         email: emailToSave || existing.email,
         domain: domainToSave || existing.domain,
-        reason: data.reason || existing.reason,
+        reason,
       },
     });
   }
@@ -53,7 +51,7 @@ export async function addSuppression(workspaceId: string, data: AddSuppressionIn
       workspaceId,
       email: emailToSave,
       domain: domainToSave,
-      reason: data.reason || 'MANUAL',
+      reason,
     },
   });
 }

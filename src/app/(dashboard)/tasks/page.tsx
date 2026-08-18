@@ -69,7 +69,8 @@ export default async function TasksPage({ searchParams }: { searchParams: Promis
                 </TableRow>
               ) : (
                 tasks.map((task) => {
-                  const isOverdue = isPast(new Date(task.dueDate)) && !isToday(new Date(task.dueDate)) && task.status !== 'DONE';
+                  const t = task as any;
+                  const isOverdue = isPast(new Date(t.dueAt)) && !isToday(new Date(t.dueAt)) && t.status !== 'DONE';
                   
                   return (
                     <TableRow key={task.id} className={isOverdue ? 'bg-red-50/50 dark:bg-red-950/20' : ''}>
@@ -81,9 +82,9 @@ export default async function TasksPage({ searchParams }: { searchParams: Promis
                         </div>
                       </TableCell>
                       <TableCell>
-                        {task.prospect ? (
-                          <Link href={`/prospects/${task.prospect.id}`} className="text-sm text-primary hover:underline">
-                            {task.prospect.companyName || task.prospect.name}
+                        {t.prospect ? (
+                          <Link href={`/prospects/${t.prospect.id}`} className="text-sm text-primary hover:underline">
+                            {t.prospect.companyName || t.prospect.name}
                           </Link>
                         ) : (
                           <span className="text-muted-foreground text-sm">-</span>
@@ -93,7 +94,7 @@ export default async function TasksPage({ searchParams }: { searchParams: Promis
                         <div className={`flex items-center gap-1.5 text-sm ${isOverdue ? 'text-red-600 font-medium' : ''}`}>
                           <Clock className="h-3.5 w-3.5" />
                           <span suppressHydrationWarning>
-                            {isToday(new Date(task.dueDate)) ? 'Today' : format(new Date(task.dueDate), 'MMM d, yyyy')}
+                            {t.dueAt ? (isToday(new Date(t.dueAt)) ? 'Today' : format(new Date(t.dueAt), 'MMM d, yyyy')) : 'No due date'}
                           </span>
                         </div>
                       </TableCell>

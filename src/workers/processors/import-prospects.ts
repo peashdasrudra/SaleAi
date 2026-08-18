@@ -20,8 +20,8 @@ export default async function importProcessor(job: Job) {
         const normalizedEmail = row.email.toLowerCase().trim();
         
         // Check duplicate
-        const existing = await prisma.prospect.findUnique({
-          where: { workspaceId_email: { workspaceId, email: normalizedEmail } }
+        const existing = await prisma.prospect.findFirst({
+          where: { workspaceId, businessEmail: normalizedEmail }
         });
 
         if (existing) {
@@ -33,13 +33,13 @@ export default async function importProcessor(job: Job) {
         await prisma.prospect.create({
           data: {
             workspaceId,
-            email: normalizedEmail,
-            firstName: row.firstName,
-            lastName: row.lastName,
-            company: row.company,
-            title: row.title,
-            linkedinUrl: row.linkedinUrl,
-            status: 'NEW',
+            businessEmail: normalizedEmail,
+            contactFirstName: row.firstName,
+            contactLastName: row.lastName,
+            companyName: row.company || 'Unknown',
+            jobTitle: row.title,
+            dataProvenanceNote: row.linkedinUrl ? `LinkedIn: ${row.linkedinUrl}` : undefined,
+            contactStatus: 'NOT_CONTACTED',
           }
         });
         

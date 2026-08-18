@@ -133,7 +133,7 @@ export async function pauseCampaign(workspaceId: string, id: string, reason?: st
 
   await prisma.campaignProspect.updateMany({
     where: { campaignId: id },
-    data: { status: 'PAUSED' },
+    data: { sequenceStatus: 'PAUSED' },
   });
 
   return prisma.campaign.update({
@@ -167,8 +167,8 @@ export async function resumeCampaign(workspaceId: string, id: string) {
   if (campaign.status !== 'PAUSED') throw new Error('Campaign is not paused');
 
   await prisma.campaignProspect.updateMany({
-    where: { campaignId: id, status: 'PAUSED' },
-    data: { status: 'NOT_STARTED' }, // Or active status based on implementation
+    where: { campaignId: id, sequenceStatus: 'PAUSED' },
+    data: { sequenceStatus: 'NOT_STARTED' }, // Or active status based on implementation
   });
 
   return prisma.campaign.update({
@@ -197,7 +197,7 @@ export async function addProspectsToCampaign(workspaceId: string, campaignId: st
           data: {
             campaignId,
             prospectId: prospect.id,
-            status: 'NOT_STARTED',
+            sequenceStatus: 'NOT_STARTED',
           }
         });
         added.push(cp);

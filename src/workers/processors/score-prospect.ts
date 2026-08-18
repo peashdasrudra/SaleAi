@@ -24,14 +24,14 @@ export default async function scoreProcessor(job: Job) {
 
   await prisma.prospect.update({
     where: { id: prospectId },
-    data: { score }
+    data: { totalScore: score }
   });
 
   if (score >= 80) { // A priority
     await notificationQueue.add('score-notification', {
       workspaceId: prospect.workspaceId,
-      type: 'HIGH_SCORE',
-      message: `Prospect ${prospect.email} achieved a high score of ${score}`,
+      type: 'HOT_LEAD',
+      message: `Prospect ${prospect.businessEmail} achieved a high score of ${score}`,
       prospectId,
       channels: ['IN_APP']
     });

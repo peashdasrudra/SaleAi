@@ -1,4 +1,5 @@
 import prisma from '@/lib/db';
+import { Priority } from '@prisma/client';
 import { DEFAULT_SCORING_RULES, ScoringRule } from './scoring-rules';
 
 export async function scoreProspect(prospectId: string, rules: ScoringRule[] = DEFAULT_SCORING_RULES) {
@@ -43,15 +44,14 @@ export async function scoreProspect(prospectId: string, rules: ScoringRule[] = D
         prospectId,
         factor: rule.factor,
         points: rule.points,
-        category: rule.category,
-        ruleId: rule.id,
+        explanation: rule.category || rule.factor || 'Scoring rule applied',
       });
     }
   }
 
   totalScore = Math.max(0, Math.min(100, totalScore));
 
-  let priority = 'C';
+  let priority: Priority = 'C';
   if (totalScore >= 75) priority = 'A';
   else if (totalScore >= 55) priority = 'B';
   else if (totalScore < 30) priority = 'DISQUALIFIED';

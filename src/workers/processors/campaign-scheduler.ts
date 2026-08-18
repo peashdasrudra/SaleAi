@@ -16,7 +16,7 @@ export default async function campaignSchedulerProcessor(job: Job) {
     const dueProspects = await prisma.campaignProspect.findMany({
       where: {
         campaignId: campaign.id,
-        status: 'ACTIVE',
+        sequenceStatus: 'ACTIVE',
         nextSendAt: { lte: now }
       },
       include: { prospect: true },
@@ -26,12 +26,12 @@ export default async function campaignSchedulerProcessor(job: Job) {
     for (const cp of dueProspects) {
       // Check limits
       if (!await checkDailyLimit(campaign.workspaceId, campaign.id, now)) continue;
-      const domain = cp.prospect.email.split('@')[1];
+      const domain = (cp.prospect.businessEmail || '').split('@')[1];
       if (!await checkDomainLimit(campaign.workspaceId, domain, campaign.id, now)) continue;
 
       // Ensure we have a pending email to send, in reality we might generate it here if needed
       const pendingEmail = await prisma.emailMessage.findFirst({
-        where: { campaignId: campaign.id, prospectId: cp.prospectId, deliveryStatus: 'PENDING' },
+        where: { campaignId: campaign.id, prospectId: cp.prospectId, deliveryStatus: 'QUEUED' },
         orderBy: { createdAt: 'asc' }
       });
 

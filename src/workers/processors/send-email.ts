@@ -11,26 +11,26 @@ export default async function sendEmailProcessor(job: Job) {
     where: { id: emailMessageId }
   });
 
-  if (!existing || existing.deliveryStatus !== 'PENDING') {
+  if (!existing || existing.deliveryStatus !== 'QUEUED') {
     return { status: 'skipped', reason: 'Already sent or not pending' };
   }
 
   const emailMessage = await prisma.emailMessage.findUnique({
     where: { id: emailMessageId },
     include: {
-      prospect: true,
-      campaign: true,
-      workspace: true
+      prospect: { include: { workspace: true } },
+      campaign: true
     }
   });
 
-  if (!emailMessage) throw new Error('Email message not found');
+  if (!emailMessage || !emailMessage.campaign) throw new Error('Email message or campaign not found');
 
-  const { prospect, workspace, campaign } = emailMessage;
+  const { prospect, campaign } = emailMessage;
+  const workspace = prospect.workspace;
   
   // Suppression check
-  const suppressed = await prisma.suppressionList.findFirst({
-    where: { workspaceId: workspace.id, email: prospect.email }
+  const suppressed = await prisma.suppression.findFirst({
+    where: { workspaceId: workspace.id, email: prospect.businessEmail }
   });
 
   if (suppressed) {
@@ -47,7 +47,7 @@ export default async function sendEmailProcessor(job: Job) {
     throw new Error('Daily limit reached');
   }
 
-  const domain = prospect.email.split('@')[1];
+  const domain = (prospect.businessEmail || '').split('@')[1];
   if (!await checkDomainLimit(workspace.id, domain, campaign.id, now)) {
     throw new Error('Domain limit reached');
   }
@@ -77,7 +77,7 @@ export default async function sendEmailProcessor(job: Job) {
         action: 'EMAIL_SENT',
         entityType: 'EmailMessage',
         entityId: emailMessageId,
-        details: { providerMessageId }
+        metadata: { providerMessageId }
       }
     });
 
