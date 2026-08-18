@@ -42,18 +42,18 @@ export function Header({ user }: HeaderProps) {
   const title = formatTitle(pathname);
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b bg-white px-6">
+    <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-background px-6">
       <div className="flex items-center gap-4">
-        <h1 className="text-xl font-semibold text-slate-900">{title}</h1>
+        <h1 className="text-xl font-semibold text-foreground">{title}</h1>
       </div>
 
       <div className="flex w-full max-w-md items-center px-4">
         <div className="relative w-full">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
             placeholder="Search prospects, campaigns..."
-            className="w-full bg-slate-50 pl-9"
+            className="w-full bg-secondary pl-9"
           />
         </div>
       </div>

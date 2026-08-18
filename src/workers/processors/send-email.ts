@@ -60,9 +60,9 @@ export default async function sendEmailProcessor(job: Job) {
     const result = await emailProvider.send({
       from: workspace.companyEmail || process.env.RESEND_FROM_EMAIL || 'hello@example.com',
       to: prospect.businessEmail!,
-      subject: emailMessage.subject,
-      html: emailMessage.bodyHtml,
-      text: emailMessage.bodyText,
+      subject: (emailMessage as any).subject || 'Email',
+      html: (emailMessage as any).bodyHtml || '',
+      text: (emailMessage as any).bodyText || '',
       replyTo: workspace.companyEmail || undefined
     });
 

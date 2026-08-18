@@ -89,7 +89,7 @@ export async function updateResearchStatus(prospectId: string, status: string) {
   
   await prisma.prospect.update({
     where: { id: prospectId, workspaceId },
-    data: { researchStatus: status }
+    data: { researchStatus: status as any }
   });
   
   revalidatePath('/research');

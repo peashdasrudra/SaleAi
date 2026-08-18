@@ -15,6 +15,9 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
+        notionPurple: "border-transparent bg-[var(--color-notion-lavender)] text-[#391c57]",
+        notionOrange: "border-transparent bg-[var(--color-notion-peach)] text-[#793400]",
+        notionGreen: "border-transparent bg-[var(--color-notion-mint)] text-[#1aae39]",
       },
     },
     defaultVariants: {
