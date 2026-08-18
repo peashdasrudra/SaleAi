@@ -41,13 +41,13 @@ export function preClassifyReply(bodyText: string): ReplyClassificationOutput | 
   for (const rule of rules) {
     for (const keyword of rule.keywords) {
       // Use word boundaries for better matching
-      const regex = new RegExp(\`\\\\b\${keyword}\\\\b\`, 'i');
+      const regex = new RegExp(`\\b${keyword}\\b`, 'i');
       if (regex.test(lowerBody)) {
         return {
           classification: rule.classification,
           sentiment: rule.sentiment,
           confidence: 0.85,
-          reason: \`Matched keyword: \${keyword}\`,
+          reason: `Matched keyword: ${keyword}`,
           suggested_next_action: rule.classification === 'UNSUBSCRIBE' ? 'Mark as opted out' : 'Review manually',
           should_notify: ['HOT', 'WARM', 'OBJECTION'].includes(rule.classification),
           should_pause_campaign: ['UNSUBSCRIBE', 'NOT_INTERESTED', 'HOT', 'WARM'].includes(rule.classification),
