@@ -24,7 +24,7 @@ export default async function NotificationsPage({ searchParams }: { searchParams
     }
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter(n => n.status === 'UNREAD').length;
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
@@ -56,26 +56,22 @@ export default async function NotificationsPage({ searchParams }: { searchParams
           </div>
         ) : (
           notifications.map((notif) => (
-            <Link key={notif.id} href={notif.linkUrl || '#'} className="block">
-              <Card className={`transition-colors hover:bg-muted/50 ${!notif.read ? 'border-l-4 border-l-blue-500 shadow-sm' : 'opacity-75'}`}>
+            <Link key={notif.id} href={'#'} className="block">
+              <Card className={`transition-colors hover:bg-muted/50 ${notif.status === 'UNREAD' ? 'border-l-4 border-l-blue-500 shadow-sm' : 'opacity-75'}`}>
                 <CardContent className="p-4 flex gap-4">
                   <div className="mt-1 flex-shrink-0 bg-background rounded-full p-2 border">
-                    {getIcon(notif.type)}
+                    {getIcon(notif.type as string)}
                   </div>
                   <div className="flex-1 space-y-1">
                     <div className="flex justify-between items-start">
-                      <p className={`text-sm ${!notif.read ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
+                      <p className={`text-sm ${notif.status === 'UNREAD' ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
                         {notif.message}
                       </p>
                       <span className="text-xs text-muted-foreground whitespace-nowrap ml-4" suppressHydrationWarning>
                         {formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true })}
                       </span>
                     </div>
-                    {notif.prospect && (
-                      <p className="text-xs text-primary">
-                        Related: {notif.prospect.companyName || notif.prospect.name}
-                      </p>
-                    )}
+                    {/* Removed prospect block since relation is missing */}
                   </div>
                 </CardContent>
               </Card>

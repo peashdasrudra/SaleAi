@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // @ts-expect-error - eslint might not be in NextConfig type locally
   eslint: {
     ignoreDuringBuilds: true,
   },

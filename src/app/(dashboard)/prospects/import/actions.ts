@@ -55,7 +55,7 @@ export async function importProspects(data: { rows: any[], fieldMapping: Record<
     try {
       if (options.skipDuplicates && email) {
         const existing = await prisma.prospect.findFirst({
-          where: { workspaceId, email }
+          where: { workspaceId, businessEmail: email }
         });
         if (existing) {
           skipped++;
@@ -67,11 +67,11 @@ export async function importProspects(data: { rows: any[], fieldMapping: Record<
         data: {
           workspaceId,
           companyName: mappedRow.company_name,
-          email: mappedRow.email,
-          firstName: mappedRow.first_name,
-          lastName: mappedRow.last_name,
+          businessEmail: mappedRow.email,
+          contactFirstName: mappedRow.first_name,
+          contactLastName: mappedRow.last_name,
           jobTitle: mappedRow.job_title,
-          status: options.markUncertain ? 'REVIEW' : 'NEW',
+          researchStatus: options.markUncertain ? 'REVIEW_REQUIRED' : 'NEW',
           country: options.defaultCountry || mappedRow.country,
         }
       });

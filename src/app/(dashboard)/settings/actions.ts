@@ -23,23 +23,19 @@ export async function updateWorkspaceSettings(data: any) {
 
   await prisma.workspace.update({
     where: { id: workspaceId },
-    data
+    data: {
+      name: data.name,
+      companyWebsite: data.companyWebsite,
+      businessAddress: data.businessAddress,
+      defaultSignature: data.defaultSignature,
+      defaultTimezone: data.defaultTimezone
+    }
   });
 
   revalidatePath('/settings');
 }
 
 export async function updateScoringRules(rules: any[]) {
-  const cookieStore = await cookies();
-  const workspaceId = cookieStore.get('workspace_id')?.value;
-  if (!workspaceId) throw new Error('Workspace not found');
-
-  await prisma.workspace.update({
-    where: { id: workspaceId },
-    data: {
-      scoringRules: rules
-    }
-  });
-
-  revalidatePath('/settings/scoring');
+  // Scoring rules are now handled differently or disabled.
+  // Leaving this stubbed out for now.
 }

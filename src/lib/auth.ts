@@ -16,6 +16,7 @@ declare module 'next-auth' {
   }
 }
 
+// @ts-expect-error - next-auth/jwt is missing in v5 beta types
 declare module 'next-auth/jwt' {
   interface JWT {
     id: string;

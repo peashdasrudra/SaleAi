@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50');
 
     // mock fetch
-    const data = [];
+    const data: any[] = [];
     return NextResponse.json({ success: true, data: { items: data, total: 0, page, limit } });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: { message: error.message } }, { status: 500 });

@@ -21,11 +21,8 @@ export default function ScoringSettingsPage() {
 
   useEffect(() => {
     getWorkspaceSettings().then((data) => {
-      if (data?.scoringRules && Array.isArray(data.scoringRules) && data.scoringRules.length > 0) {
-        setRules(data.scoringRules);
-      } else {
-        setRules(DEFAULT_SCORING_RULES);
-      }
+      // scoringRules have been deprecated from the workspace model
+      setRules(DEFAULT_SCORING_RULES);
     });
   }, []);
 

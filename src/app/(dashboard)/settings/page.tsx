@@ -17,15 +17,10 @@ export default function GeneralSettingsPage() {
       if (data) {
         reset({
           companyName: data.name,
-          website: data.website || '',
+          website: data.companyWebsite || '',
           businessAddress: data.businessAddress || '',
-          senderName: data.senderName || '',
-          senderEmail: data.senderEmail || '',
-          replyToEmail: data.replyToEmail || '',
           defaultSignature: data.defaultSignature || '',
-          timezone: data.timezone || 'UTC',
-          dailyLimit: data.dailyLimit || 100,
-          domainLimit: data.domainLimit || 5
+          timezone: data.defaultTimezone || 'UTC',
         });
       }
     });
@@ -34,15 +29,10 @@ export default function GeneralSettingsPage() {
   const onSubmit = async (data: any) => {
     await updateWorkspaceSettings({
       name: data.companyName,
-      website: data.website,
+      companyWebsite: data.website,
       businessAddress: data.businessAddress,
-      senderName: data.senderName,
-      senderEmail: data.senderEmail,
-      replyToEmail: data.replyToEmail,
       defaultSignature: data.defaultSignature,
-      timezone: data.timezone,
-      dailyLimit: parseInt(data.dailyLimit, 10),
-      domainLimit: parseInt(data.domainLimit, 10)
+      defaultTimezone: data.timezone
     });
     alert('Settings saved successfully');
   };
@@ -85,18 +75,7 @@ export default function GeneralSettingsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Sender Name</label>
-                <Input {...register('senderName')} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Sender Email</label>
-                <Input type="email" {...register('senderEmail')} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Reply-To Email</label>
-                <Input type="email" {...register('replyToEmail')} />
-              </div>
+              {/* Deprecated fields removed from UI */}
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Default Signature</label>
@@ -111,14 +90,7 @@ export default function GeneralSettingsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Daily Send Limit</label>
-                <Input type="number" {...register('dailyLimit')} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Per-Domain Limit</label>
-                <Input type="number" {...register('domainLimit')} />
-              </div>
+              {/* Limits deprecated */}
             </div>
             <div className="flex justify-end pt-4">
               <Button type="submit">Save Changes</Button>

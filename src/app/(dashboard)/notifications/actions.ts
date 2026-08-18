@@ -17,11 +17,7 @@ export async function getNotifications(filters?: { type?: string }) {
 
   const notifications = await prisma.notification.findMany({
     where,
-    include: {
-      prospect: {
-        select: { id: true, name: true, companyName: true }
-      }
-    },
+    // Removed invalid include
     orderBy: { createdAt: 'desc' },
     take: 100
   });
@@ -34,7 +30,7 @@ export async function markAsRead(id: string) {
   
   await prisma.notification.update({
     where: { id, workspaceId },
-    data: { read: true }
+    data: { status: 'READ' as any }
   });
   
   revalidatePath('/notifications');
@@ -44,8 +40,8 @@ export async function markAllAsRead() {
   const workspaceId = await getWorkspaceId();
   
   await prisma.notification.updateMany({
-    where: { workspaceId, read: false },
-    data: { read: true }
+    where: { workspaceId, status: 'UNREAD' as any },
+    data: { status: 'READ' as any }
   });
   
   revalidatePath('/notifications');
