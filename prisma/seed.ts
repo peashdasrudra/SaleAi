@@ -45,8 +45,7 @@ async function main() {
       companyEmail: 'hello@aixpertlabs.com',
       businessAddress: 'Dhaka, Bangladesh',
       defaultSignature: 'Best regards,\nAiExpertLabs Team',
-      // Assuming a relation here; if user belongs to workspace, this might need adjustment
-      // adding user as an owner if the schema expects it, or just keeping the workspace standalone.
+      ownerId: user.id,
     },
   });
   const workspaceId = workspace.id;
@@ -57,26 +56,26 @@ async function main() {
   
   // 3. Create 20 US Prospects
   const usProspectsData = [
-    { name: 'Smith Realty', fn: 'John', ln: 'Smith', title: 'Owner', email: 'john@smithrealty.com', st: 'CA', city: 'Los Angeles', status: 'NEW', p: 'A', score: 92, contact: 'NOT_CONTACTED', src: 'USER_RESEARCH', estatus: 'VALID' },
-    { name: 'Pacific Coast Properties', fn: 'Sarah', ln: 'Jenkins', title: 'Broker', email: 'sarah.j@pacificcoast.com', st: 'CA', city: 'San Diego', status: 'COMPLETE', p: 'A', score: 88, contact: 'SENT', src: 'MANUAL', estatus: 'VALID' },
-    { name: 'Texas Lone Star Real Estate', fn: 'Mike', ln: 'Johnson', title: 'Managing Partner', email: 'mike@txlonestar.com', st: 'TX', city: 'Austin', status: 'QUEUED', p: 'B', score: 75, contact: 'NOT_CONTACTED', src: 'CSV', estatus: 'VALID' },
-    { name: 'Miami Beach Homes', fn: 'Elena', ln: 'Rodriguez', title: 'Agent', email: 'elena@miamibeachhomes.com', st: 'FL', city: 'Miami', status: 'REVIEW_REQUIRED', p: 'B', score: 65, contact: 'NOT_CONTACTED', src: 'USER_RESEARCH', estatus: 'VALID' },
-    { name: 'NY Metro Property Management', fn: 'David', ln: 'Cohen', title: 'Owner', email: 'david@nymetropm.com', st: 'NY', city: 'New York', status: 'COMPLETE', p: 'A', score: 95, contact: 'REPLIED', src: 'USER_RESEARCH', estatus: 'VALID' },
+    { name: 'Smith Realty', fn: 'John', ln: 'Smith', title: 'Owner', email: 'john@smithrealty.com', st: 'CA', city: 'Los Angeles', status: 'NEW', p: 'A', score: 92, contact: 'NOT_CONTACTED', src: 'USER_RESEARCH', estatus: 'VALIDATED' },
+    { name: 'Pacific Coast Properties', fn: 'Sarah', ln: 'Jenkins', title: 'Broker', email: 'sarah.j@pacificcoast.com', st: 'CA', city: 'San Diego', status: 'COMPLETE', p: 'A', score: 88, contact: 'SENT', src: 'MANUAL', estatus: 'VALIDATED' },
+    { name: 'Texas Lone Star Real Estate', fn: 'Mike', ln: 'Johnson', title: 'Managing Partner', email: 'mike@txlonestar.com', st: 'TX', city: 'Austin', status: 'QUEUED', p: 'B', score: 75, contact: 'NOT_CONTACTED', src: 'CSV', estatus: 'VALIDATED' },
+    { name: 'Miami Beach Homes', fn: 'Elena', ln: 'Rodriguez', title: 'Agent', email: 'elena@miamibeachhomes.com', st: 'FL', city: 'Miami', status: 'REVIEW_REQUIRED', p: 'B', score: 65, contact: 'NOT_CONTACTED', src: 'USER_RESEARCH', estatus: 'VALIDATED' },
+    { name: 'NY Metro Property Management', fn: 'David', ln: 'Cohen', title: 'Owner', email: 'david@nymetropm.com', st: 'NY', city: 'New York', status: 'COMPLETE', p: 'A', score: 95, contact: 'REPLIED', src: 'USER_RESEARCH', estatus: 'VALIDATED' },
     { name: 'Chicago City Brokers', fn: 'Amanda', ln: 'Williams', title: 'Broker', email: 'amanda.w@chicagocitybrokers.com', st: 'IL', city: 'Chicago', status: 'NEW', p: 'C', score: 45, contact: 'NOT_CONTACTED', src: 'CSV', estatus: 'INVALID' },
-    { name: 'Seattle Pines Realty', fn: 'Robert', ln: 'Chen', title: 'Agent', email: 'robert@seattlepines.com', st: 'WA', city: 'Seattle', status: 'QUEUED', p: 'B', score: 70, contact: 'NOT_CONTACTED', src: 'MANUAL', estatus: 'VALID' },
-    { name: 'Denver Peak Properties', fn: 'Lisa', ln: 'Davis', title: 'Managing Partner', email: 'lisa.davis@denverpeak.com', st: 'CO', city: 'Denver', status: 'COMPLETE', p: 'A', score: 85, contact: 'APPROVED', src: 'USER_RESEARCH', estatus: 'VALID' },
+    { name: 'Seattle Pines Realty', fn: 'Robert', ln: 'Chen', title: 'Agent', email: 'robert@seattlepines.com', st: 'WA', city: 'Seattle', status: 'QUEUED', p: 'B', score: 70, contact: 'NOT_CONTACTED', src: 'MANUAL', estatus: 'VALIDATED' },
+    { name: 'Denver Peak Properties', fn: 'Lisa', ln: 'Davis', title: 'Managing Partner', email: 'lisa.davis@denverpeak.com', st: 'CO', city: 'Denver', status: 'COMPLETE', p: 'A', score: 85, contact: 'APPROVED', src: 'USER_RESEARCH', estatus: 'VALIDATED' },
     { name: 'Vegas Valley Realty', fn: 'James', ln: 'Wilson', title: 'Owner', email: 'james@vegasvalleyrealty.com', st: 'NV', city: 'Las Vegas', status: 'NEW', p: 'C', score: 35, contact: 'NOT_CONTACTED', src: 'CSV', estatus: 'INVALID' },
-    { name: 'Phoenix Sun Estates', fn: 'Maria', ln: 'Garcia', title: 'Broker', email: 'maria@phoenixsun.com', st: 'AZ', city: 'Phoenix', status: 'REVIEW_REQUIRED', p: 'B', score: 68, contact: 'NOT_CONTACTED', src: 'USER_RESEARCH', estatus: 'VALID' },
-    { name: 'Boston Brick Management', fn: 'William', ln: 'Brown', title: 'Owner', email: 'william@bostonbrick.com', st: 'MA', city: 'Boston', status: 'COMPLETE', p: 'A', score: 91, contact: 'SENT', src: 'MANUAL', estatus: 'VALID' },
-    { name: 'Atlanta Peach Realty', fn: 'Jessica', ln: 'Taylor', title: 'Agent', email: 'jessica.t@atlantapeach.com', st: 'GA', city: 'Atlanta', status: 'QUEUED', p: 'B', score: 72, contact: 'NOT_CONTACTED', src: 'CSV', estatus: 'VALID' },
+    { name: 'Phoenix Sun Estates', fn: 'Maria', ln: 'Garcia', title: 'Broker', email: 'maria@phoenixsun.com', st: 'AZ', city: 'Phoenix', status: 'REVIEW_REQUIRED', p: 'B', score: 68, contact: 'NOT_CONTACTED', src: 'USER_RESEARCH', estatus: 'VALIDATED' },
+    { name: 'Boston Brick Management', fn: 'William', ln: 'Brown', title: 'Owner', email: 'william@bostonbrick.com', st: 'MA', city: 'Boston', status: 'COMPLETE', p: 'A', score: 91, contact: 'SENT', src: 'MANUAL', estatus: 'VALIDATED' },
+    { name: 'Atlanta Peach Realty', fn: 'Jessica', ln: 'Taylor', title: 'Agent', email: 'jessica.t@atlantapeach.com', st: 'GA', city: 'Atlanta', status: 'QUEUED', p: 'B', score: 72, contact: 'NOT_CONTACTED', src: 'CSV', estatus: 'VALIDATED' },
     { name: 'Nashville Sounds Properties', fn: 'Thomas', ln: 'Moore', title: 'Broker', email: 'thomas@nashvillesounds.com', st: 'TN', city: 'Nashville', status: 'NEW', p: 'C', score: 50, contact: 'NOT_CONTACTED', src: 'USER_RESEARCH', estatus: 'INVALID' },
-    { name: 'Portland Rose Realty', fn: 'Jennifer', ln: 'Anderson', title: 'Managing Partner', email: 'jen@portlandrose.com', st: 'OR', city: 'Portland', status: 'COMPLETE', p: 'A', score: 89, contact: 'REPLIED', src: 'MANUAL', estatus: 'VALID' },
-    { name: 'SF Bay Area Estates', fn: 'Richard', ln: 'Thomas', title: 'Owner', email: 'richard@sfbayestates.com', st: 'CA', city: 'San Francisco', status: 'REVIEW_REQUIRED', p: 'B', score: 77, contact: 'NOT_CONTACTED', src: 'CSV', estatus: 'VALID' },
-    { name: 'Dallas Metro Realty', fn: 'Susan', ln: 'Jackson', title: 'Agent', email: 'susan@dallasmetro.com', st: 'TX', city: 'Dallas', status: 'NEW', p: 'B', score: 62, contact: 'NOT_CONTACTED', src: 'USER_RESEARCH', estatus: 'VALID' },
-    { name: 'Detroit Motor City Properties', fn: 'Charles', ln: 'White', title: 'Broker', email: 'charles@motorcityprop.com', st: 'MI', city: 'Detroit', status: 'QUEUED', p: 'C', score: 40, contact: 'NOT_CONTACTED', src: 'MANUAL', estatus: 'VALID' },
-    { name: 'Charlotte Queen City Realty', fn: 'Karen', ln: 'Harris', title: 'Owner', email: 'karen@queencityrealty.com', st: 'NC', city: 'Charlotte', status: 'COMPLETE', p: 'A', score: 86, contact: 'APPROVED', src: 'CSV', estatus: 'VALID' },
-    { name: 'Austin Capital Estates', fn: 'Daniel', ln: 'Martin', title: 'Managing Partner', email: 'daniel@austincapital.com', st: 'TX', city: 'Austin', status: 'NEW', p: 'B', score: 79, contact: 'NOT_CONTACTED', src: 'USER_RESEARCH', estatus: 'VALID' },
-    { name: 'Austin Capital Estates', fn: 'Danielle', ln: 'Martin', title: 'Agent', email: 'danielle@austincapital.com', st: 'TX', city: 'Austin', status: 'NEW', p: 'C', score: 30, contact: 'NOT_CONTACTED', src: 'USER_RESEARCH', estatus: 'VALID' }, // Duplicate domain
+    { name: 'Portland Rose Realty', fn: 'Jennifer', ln: 'Anderson', title: 'Managing Partner', email: 'jen@portlandrose.com', st: 'OR', city: 'Portland', status: 'COMPLETE', p: 'A', score: 89, contact: 'REPLIED', src: 'MANUAL', estatus: 'VALIDATED' },
+    { name: 'SF Bay Area Estates', fn: 'Richard', ln: 'Thomas', title: 'Owner', email: 'richard@sfbayestates.com', st: 'CA', city: 'San Francisco', status: 'REVIEW_REQUIRED', p: 'B', score: 77, contact: 'NOT_CONTACTED', src: 'CSV', estatus: 'VALIDATED' },
+    { name: 'Dallas Metro Realty', fn: 'Susan', ln: 'Jackson', title: 'Agent', email: 'susan@dallasmetro.com', st: 'TX', city: 'Dallas', status: 'NEW', p: 'B', score: 62, contact: 'NOT_CONTACTED', src: 'USER_RESEARCH', estatus: 'VALIDATED' },
+    { name: 'Detroit Motor City Properties', fn: 'Charles', ln: 'White', title: 'Broker', email: 'charles@motorcityprop.com', st: 'MI', city: 'Detroit', status: 'QUEUED', p: 'C', score: 40, contact: 'NOT_CONTACTED', src: 'MANUAL', estatus: 'VALIDATED' },
+    { name: 'Charlotte Queen City Realty', fn: 'Karen', ln: 'Harris', title: 'Owner', email: 'karen@queencityrealty.com', st: 'NC', city: 'Charlotte', status: 'COMPLETE', p: 'A', score: 86, contact: 'APPROVED', src: 'CSV', estatus: 'VALIDATED' },
+    { name: 'Austin Capital Estates', fn: 'Daniel', ln: 'Martin', title: 'Managing Partner', email: 'daniel@austincapital.com', st: 'TX', city: 'Austin', status: 'NEW', p: 'B', score: 79, contact: 'NOT_CONTACTED', src: 'USER_RESEARCH', estatus: 'VALIDATED' },
+    { name: 'Austin Capital Estates', fn: 'Danielle', ln: 'Martin', title: 'Agent', email: 'danielle@austincapital.com', st: 'TX', city: 'Austin', status: 'NEW', p: 'C', score: 30, contact: 'NOT_CONTACTED', src: 'USER_RESEARCH', estatus: 'VALIDATED' }, // Duplicate domain
   ];
 
   const usProspects = await Promise.all(usProspectsData.map(p => 
@@ -84,14 +83,14 @@ async function main() {
       data: {
         workspaceId,
         companyName: p.name,
-        companyWebsite: `https://${p.email.split('@')[1]}`,
+        website: `https://${p.email.split('@')[1]}`,
         contactFirstName: p.fn,
         contactLastName: p.ln,
         contactFullName: `${p.fn} ${p.ln}`,
         jobTitle: p.title,
         businessEmail: p.email,
         country: 'US',
-        state: p.st,
+        stateOrCounty: p.st,
         city: p.city,
         sourceType: p.src as any,
         researchStatus: p.status as any,
@@ -133,7 +132,7 @@ async function main() {
       data: {
         workspaceId,
         companyName: p.name,
-        companyWebsite: `https://${p.email.split('@')[1]}`,
+        website: `https://${p.email.split('@')[1]}`,
         contactFirstName: p.fn,
         contactLastName: p.ln,
         contactFullName: `${p.fn} ${p.ln}`,
@@ -171,10 +170,10 @@ async function main() {
     const typeIndex = i % evidenceTypes.length;
     await prisma.prospectEvidence.create({
       data: {
-        workspaceId,
         prospectId: prospect.id,
         evidenceType: evidenceTypes[typeIndex] as any,
-        evidenceDetail: evidenceDetails[typeIndex],
+        evidenceText: evidenceDetails[typeIndex],
+        observedAt: new Date(),
         verifiedByUser: i % 3 === 0,
         confidence: Math.floor(Math.random() * 55) + 40,
       }
@@ -197,11 +196,10 @@ async function main() {
       const factor = breakdownFactors[(i + j) % breakdownFactors.length];
       await prisma.scoreBreakdown.create({
         data: {
-          workspaceId,
           prospectId: prospect.id,
           factor: factor.factor,
-          score: factor.score,
-          details: factor.details,
+          points: factor.score,
+          explanation: factor.details,
         }
       });
     }
@@ -236,15 +234,14 @@ async function main() {
     { type: 'BREAKUP', subject: 'Should I close the loop?', body: 'Hi {{first_name}},\n\nI haven\'t heard back, so I\'ll assume this isn\'t a priority right now.' },
   ];
 
-  await Promise.all(templatesData.map(t => 
+  await Promise.all(templatesData.map((t, index) => 
     prisma.emailTemplate.create({
       data: {
         workspaceId,
-        campaignId: campaigns[0].id, // Assign all to the first campaign for simplicity, or spread them out
-        stepType: t.type as any,
-        subject: t.subject,
+        name: `Template ${index + 1}`,
+        templateType: t.type as any,
+        subjectTemplate: t.subject,
         bodyTemplate: t.body,
-        stepOrder: templatesData.indexOf(t) + 1,
       }
     })
   ));
@@ -265,28 +262,35 @@ async function main() {
     const r = repliesData[i];
     const prospect = repliedProspects[i % repliedProspects.length] || allProspects[i];
     
-    // Create corresponding EmailMessage
-    const emailMessage = await prisma.emailMessage.create({
+    const generatedEmail = await prisma.generatedEmail.create({
       data: {
-        workspaceId,
         prospectId: prospect.id,
         campaignId: campaigns[0].id,
-        direction: 'INBOUND',
         subject: `Re: Quick question about ${prospect.companyName}`,
-        body: r.content,
+        bodyHtml: r.content,
+        bodyText: r.content,
+      }
+    });
+
+    const emailMessage = await prisma.emailMessage.create({
+      data: {
+        prospectId: prospect.id,
+        campaignId: campaigns[0].id,
+        generatedEmailId: generatedEmail.id,
+        providerMessageId: `msg-${Date.now()}-${i}`,
+        stepNumber: 1,
         sentAt: new Date(),
-        messageId: `msg-${Date.now()}-${i}`,
       }
     });
 
     await prisma.reply.create({
       data: {
-        workspaceId,
         prospectId: prospect.id,
         emailMessageId: emailMessage.id,
-        replyType: r.type as any,
-        content: r.content,
-        analyzedAt: new Date(),
+        senderEmail: prospect.businessEmail || 'unknown@example.com',
+        bodyText: r.content,
+        classification: r.type as any,
+        receivedAt: new Date(),
       }
     });
   }
@@ -295,8 +299,8 @@ async function main() {
   // 10. Create 2 Suppression entries
   await prisma.suppression.createMany({
     data: [
-      { workspaceId, entityValue: 'nomore@example.com', entityType: 'EMAIL', reason: 'UNSUBSCRIBE' },
-      { workspaceId, entityValue: 'bounceddomain.com', entityType: 'DOMAIN', reason: 'HARD_BOUNCE' },
+      { workspaceId, email: 'nomore@example.com', reason: 'UNSUBSCRIBE' },
+      { workspaceId, domain: 'bounceddomain.com', reason: 'HARD_BOUNCE' },
     ]
   });
   console.log(`Created 2 Suppression entries`);
@@ -314,7 +318,7 @@ async function main() {
         workspaceId,
         title: t,
         status: 'OPEN',
-        dueDate: new Date(Date.now() + 86400000), // tomorrow
+        dueAt: new Date(Date.now() + 86400000), // tomorrow
       }
     })
   ));
@@ -333,10 +337,8 @@ async function main() {
     prisma.notification.create({
       data: {
         workspaceId,
-        userId: user.id,
-        title: n.title,
-        notificationType: n.type as any,
-        isRead: false,
+        message: n.title,
+        type: n.type as any,
       }
     })
   ));
