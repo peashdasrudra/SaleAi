@@ -56,7 +56,7 @@ export default async function ResearchQueuePage({ searchParams }: { searchParams
               <Card key={prospect.id} className="cursor-pointer hover:border-primary transition-colors">
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <div className="font-semibold text-lg">{prospect.companyName || prospect.name}</div>
+                    <div className="font-semibold text-lg">{prospect.companyName || prospect.contactFullName}</div>
                     <Badge variant={
                       prospect.researchStatus === 'REVIEW_REQUIRED' ? 'destructive' : 
                       prospect.researchStatus === 'IN_PROGRESS' ? 'default' : 'secondary'
@@ -73,7 +73,7 @@ export default async function ResearchQueuePage({ searchParams }: { searchParams
                   </div>
                   <div className="flex gap-2 text-xs">
                     <Badge variant="outline">Priority: {prospect.priority || 'MEDIUM'}</Badge>
-                    <Badge variant="outline">Score: {prospect.score || 0}</Badge>
+                    <Badge variant="outline">Score: {prospect.totalScore || 0}</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -88,7 +88,7 @@ export default async function ResearchQueuePage({ searchParams }: { searchParams
               <Card>
                 <CardHeader>
                   <CardTitle className="flex justify-between items-center">
-                    <span>{prospects[0].companyName || prospects[0].name}</span>
+                    <span>{prospects[0].companyName || prospects[0].contactFullName}</span>
                     {prospects[0].website && (
                       <Link href={prospects[0].website.startsWith('http') ? prospects[0].website : `https://${prospects[0].website}`} target="_blank" className="text-primary hover:underline text-sm flex items-center gap-1">
                         Visit Website <ExternalLink className="h-4 w-4" />
@@ -98,16 +98,16 @@ export default async function ResearchQueuePage({ searchParams }: { searchParams
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4 text-sm">
-                    {prospects[0].email && (
+                    {prospects[0].businessEmail && (
                       <div className="flex items-center gap-2">
                         <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span>{prospects[0].email}</span>
+                        <span>{prospects[0].businessEmail}</span>
                       </div>
                     )}
-                    {prospects[0].phone && (
+                    {prospects[0].publicBusinessPhone && (
                       <div className="flex items-center gap-2">
                         <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span>{prospects[0].phone}</span>
+                        <span>{prospects[0].publicBusinessPhone}</span>
                       </div>
                     )}
                   </div>

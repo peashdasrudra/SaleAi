@@ -84,7 +84,7 @@ export default async function TasksPage({ searchParams }: { searchParams: Promis
                       <TableCell>
                         {t.prospect ? (
                           <Link href={`/prospects/${t.prospect.id}`} className="text-sm text-primary hover:underline">
-                            {t.prospect.companyName || t.prospect.name}
+                            {t.prospect.companyName || t.prospect.contactFullName}
                           </Link>
                         ) : (
                           <span className="text-muted-foreground text-sm">-</span>

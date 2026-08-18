@@ -20,7 +20,7 @@ export async function getTasks(filters?: { status?: string; priority?: string })
     where,
     include: {
       prospect: {
-        select: { id: true, name: true, companyName: true }
+        select: { id: true, companyName: true, contactFullName: true }
       }
     },
     orderBy: [

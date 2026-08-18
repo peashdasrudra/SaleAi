@@ -32,7 +32,7 @@ export async function getResearchQueue(filters?: { status?: string; country?: st
     },
     orderBy: [
       { priority: 'desc' },
-      { score: 'desc' }
+      { totalScore: 'desc' }
     ]
   });
 
@@ -44,10 +44,13 @@ export async function addEvidence(data: { prospectId: string; type: string; text
   
   const evidence = await prisma.prospectEvidence.create({
     data: {
-      ...data,
-      workspaceId,
+      prospectId: data.prospectId,
+      evidenceType: data.type as any,
+      evidenceText: data.text,
+      evidenceUrl: data.url,
+      confidence: data.confidence,
       observedAt: new Date(),
-      verified: false
+      verifiedByUser: false
     }
   });
   
@@ -59,8 +62,12 @@ export async function updateEvidence(id: string, data: { verified?: boolean; con
   const workspaceId = await getWorkspaceId();
   
   const evidence = await prisma.prospectEvidence.update({
-    where: { id, workspaceId },
-    data
+    where: { id },
+    data: {
+      verifiedByUser: data.verified,
+      confidence: data.confidence,
+      evidenceText: data.text,
+    }
   });
   
   revalidatePath('/research');
@@ -71,7 +78,7 @@ export async function deleteEvidence(id: string) {
   const workspaceId = await getWorkspaceId();
   
   await prisma.prospectEvidence.delete({
-    where: { id, workspaceId }
+    where: { id }
   });
   
   revalidatePath('/research');
@@ -94,7 +101,7 @@ export async function triggerScoring(prospectId: string) {
   // Mock logic:
   await prisma.prospect.update({
     where: { id: prospectId, workspaceId },
-    data: { score: Math.floor(Math.random() * 100) }
+    data: { totalScore: Math.floor(Math.random() * 100) }
   });
   
   revalidatePath('/research');
